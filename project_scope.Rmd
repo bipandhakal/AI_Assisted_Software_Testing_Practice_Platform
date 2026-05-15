@@ -1,0 +1,69 @@
+---
+title: "Project Scope"
+author: "Keshav Raj Poudel"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+---
+
+# 1.3 Project Scope
+
+This section defines what is included and excluded from the AI-Assisted Software Testing Practice Platform project. The scope helps the team clearly understand the project boundaries and avoid unnecessary scope creep during development.
+
+## 1.3.1 In Scope
+
+The following features and components are included within the scope of this project:
+
+### Web Application
+
+The application will consist of a fully functional browser-based web application built with React and Next.js for the frontend, a Python Flask REST API for the application layer, and a PostgreSQL relational database for the backend (Fielding, 2000).
+
+### Question Bank
+
+The project team will author at least 150 original questions. Each question will be multiple choice and cover all six ISTQB Foundation Level (CTFL v4.0) knowledge domains. Questions will be reviewed by fellow team members for accuracy and alignment with the latest syllabus before being added to the platform.
+
+### Google Gemini AI Answers
+
+The system will integrate the Google Gemini API using the gemini-1.5-flash free tier. This will allow the platform to provide contextual AI-driven answer explanations for each practice question. These explanations will help users understand why the correct answer is correct and why the other options are incorrect.
+
+### Accounts
+
+The platform will include user account functionality with JWT-based stateless authentication and bcrypt password hashing. This will allow users to securely log in, save practice progress across sessions, and retrieve accumulated performance data (OWASP Foundation, 2021).
+
+### Analytics Dashboard
+
+The analytics dashboard will provide each logged-in user with overall accuracy percentage, individual domain accuracy percentages across all six CTFL v4.0 domains, session history, and a summary of their weakest domains. This will help users focus their study on areas that need improvement (Google, 2024).
+
+### Admin Question Management
+
+The platform will include an admin question management feature. Admin users will be able to create, read, update, and delete questions and answer options through the application interface without directly accessing the database.
+
+## 1.3.2 Out of Scope
+
+The following features and components are not included within the scope of this project:
+
+### Production Cloud Deployment
+
+The project will only create and demonstrate a locally deployed prototype version. Live production hosting or deployment on cloud platforms such as AWS or Azure is not included.
+
+### Advanced or Expert Level ISTQB Exams
+
+The question bank will only include ISTQB Foundation Level (CTFL v4.0) exam syllabus topics. Advanced Level (CTAL) and Expert Level (CTEL) exams are outside the project scope (ISTQB, 2024).
+
+### Native Mobile Application
+
+The project will deliver a responsive browser-based web application. Separate native iOS or Android mobile application development will not be conducted.
+
+### Subscription Billing or PayPal Payments
+
+The system will not include payment gateway integration, billing, or subscription management. Since this is an academic learning prototype, no real money will be exchanged.
+
+### Multiple Languages
+
+The system will be developed in English only. Localisation or translation into other languages is not included in the project scope.
+
+## Summary
+
+In summary, the project scope focuses on building a secure web-based ISTQB practice platform with AI-powered explanations, user accounts, analytics, and admin question management. Features such as production deployment, mobile apps, payment systems, advanced ISTQB exams, and multiple languages are excluded to keep the project manageable within the academic timeline.

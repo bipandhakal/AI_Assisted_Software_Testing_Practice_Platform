@@ -1,0 +1,222 @@
+---
+title: "AI-Assisted Software Testing Practice Platform"
+author: "Keshav Raj Poudel"
+date: "2026-05-16"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r packages, include=FALSE}
+# Install packages if needed:
+# install.packages("DiagrammeR")
+library(DiagrammeR)
+```
+
+# 1. Project Scope
+
+The AI-Assisted Software Testing Practice Platform is a browser-based web application designed to help students prepare for the ISTQB Foundation Level certification exam. The platform allows users to practise multiple-choice questions, receive AI-generated explanations using Google Gemini API, and view domain-level performance analytics.
+
+## 1.1 In Scope
+
+- Secure web-based application using React/Next.js frontend, Python Flask REST API, and PostgreSQL database.
+- User registration and login with JWT authentication and bcrypt password hashing.
+- Question bank containing at least 150 ISTQB CTFL v4.0 style questions across all six knowledge domains.
+- AI-generated answer explanations using Google Gemini API.
+- Learner analytics dashboard showing overall accuracy, domain-level accuracy, session history, and weak areas.
+- Admin question management for creating, updating, viewing, and deleting questions.
+- Security testing using OWASP ZAP and functional testing using pytest and Postman.
+
+## 1.2 Out of Scope
+
+- Production cloud deployment outside the academic prototype.
+- Native mobile application development.
+- Payment gateway or subscription billing.
+- Advanced or expert-level ISTQB questions.
+- Multi-language support.
+
+# 2. Use Case Diagram
+
+```{r use-case-diagram}
+grViz("
+digraph use_case {
+  graph [layout = dot, rankdir = LR]
+  node [fontname = Helvetica, fontsize = 11]
+  edge [fontname = Helvetica, fontsize = 10]
+
+  Student [shape=box, label='Student / Learner']
+  Admin [shape=box, label='Admin']
+  Gemini [shape=box, label='Google Gemini API']
+
+  subgraph cluster_system {
+    label='AI-Assisted Software Testing Practice Platform'
+    style=rounded
+    color=black
+
+    Login [shape=ellipse, label='Register / Login']
+    Practice [shape=ellipse, label='Practise ISTQB Questions']
+    Submit [shape=ellipse, label='Submit Answer']
+    Explain [shape=ellipse, label='View AI Explanation']
+    Analytics [shape=ellipse, label='View Analytics Dashboard']
+    ManageQ [shape=ellipse, label='Manage Question Bank']
+    Sessions [shape=ellipse, label='View Session History']
+  }
+
+  Student -> Login
+  Student -> Practice
+  Student -> Submit
+  Student -> Explain
+  Student -> Analytics
+  Student -> Sessions
+
+  Admin -> Login
+  Admin -> ManageQ
+
+  Explain -> Gemini [label='Request explanation']
+  Gemini -> Explain [label='Return explanation']
+}
+")
+```
+
+# 3. Data Flow Diagram Level 0
+
+The Level 0 DFD shows the whole platform as one main process. Students and admins interact with the platform, while the system stores data in PostgreSQL and requests AI explanations from Google Gemini API.
+
+```{r dfd-level-0}
+grViz("
+digraph dfd0 {
+  graph [layout = dot, rankdir = LR]
+  node [fontname = Helvetica, fontsize = 11]
+  edge [fontname = Helvetica, fontsize = 10]
+
+  Student [shape=box, label='Student']
+  Admin [shape=box, label='Admin']
+  Gemini [shape=box, label='Google Gemini API']
+  System [shape=circle, width=2, label='AI-Assisted\nPractice Platform']
+  DB [shape=cylinder, label='PostgreSQL\nDatabase']
+
+  Student -> System [label='Login, answer questions, request analytics']
+  System -> Student [label='Questions, explanations, results, analytics']
+
+  Admin -> System [label='Manage questions']
+  System -> Admin [label='Question management result']
+
+  System -> Gemini [label='Question and answer context']
+  Gemini -> System [label='AI explanation']
+
+  System -> DB [label='Store users, questions, attempts']
+  DB -> System [label='Retrieve records']
+}
+")
+```
+
+# 4. Data Flow Diagram Level 1
+
+The Level 1 DFD breaks the platform into the main internal processes: authentication, question delivery, answer evaluation, AI explanation, analytics, and admin question management.
+
+```{r dfd-level-1}
+grViz("
+digraph dfd1 {
+  graph [layout = dot, rankdir = LR]
+  node [fontname = Helvetica, fontsize = 10]
+  edge [fontname = Helvetica, fontsize = 9]
+
+  Student [shape=box, label='Student']
+  Admin [shape=box, label='Admin']
+  Gemini [shape=box, label='Google Gemini API']
+
+  P1 [shape=circle, label='1.0\nAuthentication']
+  P2 [shape=circle, label='2.0\nQuestion Provider']
+  P3 [shape=circle, label='3.0\nAnswer Evaluator']
+  P4 [shape=circle, label='4.0\nAI Explanation Engine']
+  P5 [shape=circle, label='5.0\nPerformance Analytics']
+  P6 [shape=circle, label='6.0\nQuestion Bank Manager']
+
+  D1 [shape=cylinder, label='D1 Users']
+  D2 [shape=cylinder, label='D2 Questions']
+  D3 [shape=cylinder, label='D3 Attempt History']
+  D4 [shape=cylinder, label='D4 Domains']
+  D5 [shape=cylinder, label='D5 Cached Explanations']
+
+  Student -> P1 [label='Login/Register']
+  P1 -> D1 [label='Validate/store user']
+  D1 -> P1 [label='User data']
+  P1 -> Student [label='JWT token']
+
+  Student -> P2 [label='Request questions']
+  P2 -> D2 [label='Fetch questions']
+  D2 -> P2 [label='Question list']
+  P2 -> Student [label='Display questions']
+
+  Student -> P3 [label='Submit answer']
+  P3 -> D2 [label='Check correct answer']
+  P3 -> D3 [label='Save attempt']
+  P3 -> Student [label='Correct/incorrect feedback']
+
+  Student -> P4 [label='Request explanation']
+  P4 -> D5 [label='Check cached explanation']
+  P4 -> Gemini [label='Send prompt if not cached']
+  Gemini -> P4 [label='AI explanation']
+  P4 -> D5 [label='Store explanation']
+  P4 -> Student [label='Show explanation']
+
+  Student -> P5 [label='Request dashboard']
+  P5 -> D3 [label='Read attempts']
+  P5 -> D4 [label='Read domains']
+  P5 -> Student [label='Accuracy and weak areas']
+
+  Admin -> P6 [label='Create/update/delete questions']
+  P6 -> D2 [label='Manage question records']
+  P6 -> D4 [label='Map domains']
+  P6 -> Admin [label='Management result']
+}
+")
+```
+
+# 5. ER Diagram
+
+The ER diagram shows the main database entities and relationships used in the platform.
+
+```{r er-diagram}
+grViz("
+digraph erd {
+  graph [layout = dot, rankdir = LR]
+  node [shape=record, fontname=Helvetica, fontsize=10]
+  edge [fontname=Helvetica, fontsize=9]
+
+  Users [label='{Users|user_id PK\nname\nemail\npassword_hash\nrole\ncreated_at}']
+  Domains [label='{Domains|domain_id PK\ndomain_name\ndescription}']
+  Questions [label='{Questions|question_id PK\ndomain_id FK\nquestion_text\ncorrect_option\ndifficulty\ncreated_by FK}']
+  Options [label='{Answer_Options|option_id PK\nquestion_id FK\noption_label\noption_text\nis_correct}']
+  Attempts [label='{Attempts|attempt_id PK\nuser_id FK\nquestion_id FK\nselected_option\nis_correct\nattempted_at}']
+  Sessions [label='{Practice_Sessions|session_id PK\nuser_id FK\nstart_time\nend_time\nscore}']
+  Explanations [label='{AI_Explanations|explanation_id PK\nquestion_id FK\nexplanation_text\nprovider\ncreated_at}']
+
+  Users -> Questions [label='creates']
+  Domains -> Questions [label='has many']
+  Questions -> Options [label='has many']
+  Users -> Attempts [label='makes']
+  Questions -> Attempts [label='answered in']
+  Users -> Sessions [label='starts']
+  Questions -> Explanations [label='has']
+}
+")
+```
+
+# 6. Short Explanation of Diagrams
+
+The use case diagram shows the main users of the system: Student, Admin, and Google Gemini API. Students can log in, practise questions, submit answers, view AI explanations, and check analytics. Admins can manage the question bank.
+
+The DFD Level 0 shows how data flows between external users, the platform, the PostgreSQL database, and the Gemini API. The DFD Level 1 expands this into detailed internal processes such as authentication, question provider, answer evaluator, AI explanation engine, performance analytics, and question bank management.
+
+The ER diagram shows the database structure. Users can make attempts and start practice sessions. Questions belong to ISTQB domains and have multiple answer options. AI explanations are linked to questions and can be cached for reuse.
+
+# 7. Conclusion
+
+This R Markdown file presents the core project scope and design diagrams for the AI-Assisted Software Testing Practice Platform. These diagrams support the system design section and can be committed to GitHub as part of the project documentation.
